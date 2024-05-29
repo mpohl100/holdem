@@ -1,7 +1,24 @@
-set( LIB_SOURCES Lib.cpp)
+add_subdirectory(par)
 
-find_package( range-v3 REQUIRED )
+set( LIB_SOURCES 
+    Card52.cpp
+    Deck52.cpp
+    Pot.cpp 
+    Nlhe.cpp
+    Stack.cpp
+    Player.cpp
+    HoleCards.cpp
+    HandHistory.cpp
+    DecisionEngine.cpp
+    Board.cpp
+    Hand.cpp
+    Action.cpp
+    Dealer.cpp
+    HandRange.cpp
+    RatedHand.cpp
+    )
 
-add_library( lib SHARED ${LIB_SOURCES} )
-target_link_libraries( lib range-v3::range-v3)
-target_include_directories(lib PUBLIC {CMAKE_SOURCE_DIR}/src)
+set( LIBNAME game)
+
+add_library( ${LIBNAME} SHARED ${LIB_SOURCES} )
+target_link_libraries( ${LIBNAME} CONAN_PKG::range-v3)
