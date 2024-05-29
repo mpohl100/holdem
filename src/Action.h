@@ -7,6 +7,8 @@
 #include "Hand.h"
 #include "Pot.h"
 
+#include <optional>
+
 namespace game52{
 
 class HandAction{
