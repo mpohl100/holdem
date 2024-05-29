@@ -14,6 +14,7 @@ set( LIB_SOURCES
     DecisionEngine.cpp
     Board.cpp
     Hand.cpp
+    HoldemHand.cpp
     Action.cpp
     Dealer.cpp
     HandRange.cpp

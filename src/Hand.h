@@ -132,5 +132,4 @@ private:
     int outs_ = 0;
 };
 
-
 }
