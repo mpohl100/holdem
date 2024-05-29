@@ -4,6 +4,7 @@
         "conan": {}
     },
     "include": [
-        "/workspaces/holdem/build/Debug/generators/CMakePresets.json"
+        "/workspaces/holdem/build/Debug/generators/CMakePresets.json",
+        "build/Debug/generators/CMakePresets.json"
     ]
 }
