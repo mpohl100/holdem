@@ -25,7 +25,7 @@ int main(int argc, char** argv){
         exit(0);
     }
 
-    game52::printPreflopStrengths();
+    game52::calculatePreflopStrengths();
 
     //game52::Nlhe52 holdem(3);
     //for(int i = 0; i < nbHands; ++i)
