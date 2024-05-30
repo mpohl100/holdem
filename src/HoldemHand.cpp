@@ -4,6 +4,13 @@
 
 #include <algorithm>
 
+namespace{
+  bool compareHighCards(std::vector<game52::Rank52> const &l,
+                      std::vector<game52::Rank52> const &r) {
+  return std::lexicographical_compare(l.begin(), l.end(), r.begin(), r.end());
+}
+}
+
 namespace game52 {
 
 HoldemHand52::HoldemHand52(HoleCards const &holeCards, Board const &board)
@@ -27,10 +34,123 @@ HoldemHand52::HandRank52 HoldemHand52::getClassifiedPokerHand() const {
 }
 
 std::array<Rank52, 2> HoldemHand52::findOccurences(int nb) const {
-  return {Rank52::Ace, Rank52::Ace};
+  std::array<Rank52, 2> result;
+  size_t count = 0;
+  for (size_t i = rankOccurences_.size() - 1; i >= 0; --i) {
+    if (rankOccurences_[i] == nb) {
+      result[count] = static_cast<Rank52>(i - 1);
+      ++count;
+    }
+    if(count == 2){
+      break;
+    }
+  }
+  return result;
 }
 std::vector<Rank52> HoldemHand52::getHighCards() const {
-  return {Rank52::Ace, Rank52::Ace};
+  switch(handRank_){
+    case HighCard:{
+      auto highCards = std::vector<Rank52>{};
+      highCards.reserve(5);
+      for(auto card : cards_ | ranges::views::reverse){
+        highCards.push_back(card.rank());
+        if(highCards.size() == 5){
+          break;
+        }
+      }
+      return highCards;
+    }
+    case Pair:{
+      auto highCards = std::vector<Rank52>{};
+      highCards.reserve(3);
+      for(size_t i = rankOccurences_.size() - 1; i >= 0; --i){
+        if(rankOccurences_[i] == 1){
+          highCards.push_back(static_cast<Rank52>(i - 1));
+        }
+        if(highCards.size() == 3){
+          break;
+        }
+      }
+      return highCards;
+    }
+    case TwoPair:{
+      auto highCards = std::vector<Rank52>{};
+      highCards.reserve(1);
+      for(size_t i = rankOccurences_.size() - 1; i >= 0; --i){
+        if(rankOccurences_[i] == 1){
+          highCards.push_back(static_cast<Rank52>(i - 1));
+        }
+        if(highCards.size() == 1){
+          break;
+        }
+      }
+      return highCards;
+    }
+    case Trips:{
+      auto highCards = std::vector<Rank52>{};
+      highCards.reserve(2);
+      for(size_t i = rankOccurences_.size() - 1; i >= 0; --i){
+        if(rankOccurences_[i] == 1){
+          highCards.push_back(static_cast<Rank52>(i - 1));
+        }
+        if(highCards.size() == 2){
+          break;
+        }
+      }
+      return highCards;
+    }
+    case Straight:{
+      auto straightRank = getStraightRank(rankOccurences_);
+      auto highCards = std::vector<Rank52>{};
+      highCards.reserve(5);
+      auto rank = *straightRank;
+      return {rank};
+    }
+    case Flush:{
+      auto flushSuit = getFlushSuit(suitOccurences_);
+      auto highCards = std::vector<Rank52>{};
+      for(auto card : cards_ | ranges::views::filter([flushSuit](auto card){
+        return card.suit() == *flushSuit;
+      })){
+        highCards.push_back(card.rank());
+        if(highCards.size() == 5){
+          break;
+        }
+      }
+      std::reverse(highCards.begin(), highCards.end());
+      return highCards;
+    }
+    case FullHouse:{
+      return {};
+    }
+    case Quads:{
+      auto highCards = std::vector<Rank52>{};
+      highCards.reserve(1);
+      for(size_t i = rankOccurences_.size() - 1; i >= 0; --i){
+        if(rankOccurences_[i] == 1){
+          highCards.push_back(static_cast<Rank52>(i - 1));
+        }
+        if(highCards.size() == 1){
+          break;
+        }
+      }
+      return highCards;
+    }
+    case StraightFlush:{
+      auto straightRank = getStraightRank(rankOccurences_);
+      return {*straightRank};
+    }
+  }
+  return {};
+}
+
+int HoldemHand52::sum() const{
+  auto highCards = getHighCards();
+  int sum = 0;
+  for(auto card : highCards){
+    sum += card;
+  }
+  return sum;
 }
 
 HoldemHand52 HoldemHand52::fromString(std::string const &str) {
@@ -44,21 +164,89 @@ HoldemHand52 HoldemHand52::fromString(std::string const &str) {
   return HoldemHand52(hand.begin(), hand.end());
 }
 
-void classifyHand() {
+void HoldemHand52::classifyHand() {
+  // we will use the rankOccurences_ and suitOccurences_ to classify the hand
+  size_t differentRanks = 0;
   for(const auto& card : cards_){
-    ++rankOccurences_[static_cast<std::uint8_t>(card.getRank() + 1)];
-    if(card.getRank() == Rank52::Ace)
+    auto& rank = rankOccurences_[static_cast<std::uint8_t>(card.rank() + 1)];
+    rank++;
+    if(rank == 1){
+      ++differentRanks;
+    }
+    if(card.rank() == Rank52::Ace){
       ++rankOccurences_[0];
-    ++suitOccurences_[static_cast<std::uint8_t>(card.getSuit())];
+    }
+    ++suitOccurences_[static_cast<std::uint8_t>(card.suit())];
   }
 
   auto flushSuit = getFlushSuit(suitOccurences_);
   auto straightRank = getStraightRank(rankOccurences_);
-
+  if(differentRanks == cards_.size() && !flushSuit && !straightRank){
+    handRank_ = HighCard;
+    return;
+  }
+  if(differentRanks == cards_.size() - 1 && !flushSuit && !straightRank){
+    handRank_ = Pair;
+    return;
+  }
+  if(differentRanks == cards_.size() - 2 && !flushSuit && !straightRank){
+    // either it is trips or two pair
+    for(size_t i = rankOccurences_.size() - 1; i >= 0; --i){
+      if(rankOccurences_[i] == 3){
+        handRank_ = Trips;
+        return;
+      }
+    }
+    handRank_ = TwoPair;
+    return;
+  }
+  if(differentRanks == cards_.size() - 3 && !flushSuit && !straightRank){
+    // it could be quads or full house or trips or three pair
+    for(size_t i = rankOccurences_.size() - 1; i >= 0; --i){
+      if(rankOccurences_[i] == 4){
+        handRank_ = Quads;
+        return;
+      }
+      else if(rankOccurences_[i] == 3){
+        handRank_ = FullHouse;
+        return;
+      }
+    }
+    handRank_ = TwoPair;
+    return;
+  }
+  if(flushSuit && !straightRank){
+    handRank_ = Flush;
+    return;
+  }
+  if(straightRank && !flushSuit){
+    handRank_ = Straight;
+    return;
+  }
+  if(straightRank && flushSuit){
+    auto rank = *straightRank;
+    auto suit = *flushSuit;
+    for(size_t i = 0; i < 5; ++i){
+      auto card = std::find(cards_.begin(), cards_.end(), Card52(rank, suit));
+      if(card == cards_.end()){
+        handRank_ = Flush;
+      }
+      if(rank == Rank52::Deuce){
+        rank = Rank52::Ace;
+      }
+      else{
+        rank = static_cast<Rank52>(static_cast<std::uint8_t>(rank) - 1);
+      }
+    }
+    handRank_ = StraightFlush;
+    return;
+  }
 }
 
 std::optional<Suit> HoldemHand52::getFlushSuit(std::vector<std::uint8_t> const& suitOccurences) const {
-  auto flushSuit = std::find(suitOccurences.begin(), suitOccurences.end(), 5);
+  auto flushSuit = std::find_if(suitOccurences.begin(), suitOccurences.end(), [](auto occurence){
+    return occurence >= 5;
+  });
   if(flushSuit != suitOccurences.end())
     return static_cast<Suit>(std::distance(flushSuit, suitOccurences.begin()));
   return std::nullopt;
@@ -78,7 +266,7 @@ std::optional<Rank52> HoldemHand52::getStraightRank(std::vector<std::uint8_t> co
         currentStartRank = static_cast<Rank52>(i-1);
         neighboursCount = 1;
       }else{
-        ++neightboursCount;
+        ++neighboursCount;
       }
     }
     else{
@@ -87,11 +275,6 @@ std::optional<Rank52> HoldemHand52::getStraightRank(std::vector<std::uint8_t> co
     }
   }
   return currentStartRank;
-}
-
-bool compareHighCards(std::vector<Rank52> const &l,
-                      std::vector<Rank52> const &r) {
-  return std::lexicographical_compare(l.begin(), l.end(), r.begin(), r.end());
 }
 
 bool operator<(HoldemHand52 const &l, HoldemHand52 const &r) {
