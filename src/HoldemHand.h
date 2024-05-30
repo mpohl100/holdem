@@ -54,7 +54,6 @@ private:
     std::vector<Card52> cards_;
     HandRank52 handRank_;
     // members for details of flush and straight
-    std::vector<Rank52> relevanthighCards_;
     std::vector<std::uint8_t> rankOccurences_;
     std::vector<std::uint8_t> suitOccurences_; 
 };
