@@ -14,7 +14,9 @@ namespace{
 namespace game52 {
 
 HoldemHand52::HoldemHand52(HoleCards const &holeCards, Board const &board)
-    : cards_(holeCards.getCards()) {
+    : cards_(holeCards.getCards())
+    , rankOccurences_(static_cast<size_t>(Rank52::Ace) + 2, 0)
+    , suitOccurences_(4, 0) {
   cards_.insert(cards_.end(), board.getCards().begin(), board.getCards().end());
   std::sort(cards_.begin(), cards_.end());
   classifyHand();
@@ -22,7 +24,9 @@ HoldemHand52::HoldemHand52(HoleCards const &holeCards, Board const &board)
 
 HoldemHand52::HoldemHand52(std::vector<Card52>::iterator begin,
                            std::vector<Card52>::iterator end)
-    : cards_{begin, end} {
+    : cards_{begin, end}
+    , rankOccurences_(static_cast<size_t>(Rank52::Ace) + 2, 0)
+    , suitOccurences_(4, 0) {
   std::sort(cards_.begin(), cards_.end());
   classifyHand();
 }
