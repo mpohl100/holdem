@@ -3,6 +3,8 @@
 #include "Board.h"
 #include "HoleCards.h"
 
+#include <array>
+#include <optional>
 #include <vector>
 
 namespace game52{
@@ -31,6 +33,8 @@ public:
     
     std::vector<Card52> getCards() const;
     HandRank52 getClassifiedPokerHand() const;
+    std::array<Rank52,2> findOccurences(int nb) const;
+    std::vector<Rank52> getHighCards() const;
 
     static HoldemHand52 fromString(std::string const& str);
 
@@ -41,8 +45,17 @@ public:
     friend bool operator<=(HoldemHand52 const& left, HoldemHand52 const& right);
     friend bool operator>=(HoldemHand52 const& left, HoldemHand52 const& right);
 private:
+
+    void classifyHand();
+    std::optional<Suit> getFlushSuit(std::vector<std::uint8_t> const& suitOccurences) const;
+    std::optional<Rank52> getStraightRank(std::vector<std::uint8_t> const& rankOccurences) const;
+
     std::vector<Card52> cards_;
     HandRank52 handRank_;
+    // members for details of flush and straight
+    std::vector<Rank52> relevanthighCards_;
+    std::vector<std::uint8_t> rankOccurences_;
+    std::vector<std::uint8_t> suitOccurences_; 
 };
 
 } // namespace game52
