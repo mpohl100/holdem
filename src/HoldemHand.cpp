@@ -3,7 +3,6 @@
 #include <range/v3/all.hpp>
 
 #include <algorithm>
-#include <iostream>
 
 namespace {
 bool compareHighCards(std::vector<game52::Rank52> const &l,
@@ -102,7 +101,7 @@ std::vector<Rank52> HoldemHand52::getHighCards() const {
     auto flushSuit = getFlushSuit(suitOccurences_);
     auto highCards = std::vector<Rank52>{};
     for (auto card : cards_) {
-      if(card.suit() != *flushSuit){
+      if (card.suit() != *flushSuit) {
         continue;
       }
       highCards.push_back(card.rank());
@@ -110,11 +109,6 @@ std::vector<Rank52> HoldemHand52::getHighCards() const {
         break;
       }
     }
-    std::cout << "Flush ranks:\n";
-    for(const auto& rank : highCards){
-      std::cout << rank << " ";
-    }
-    std::cout << '\n';
     std::sort(highCards.begin(), highCards.end());
     std::reverse(highCards.begin(), highCards.end());
     return highCards;
@@ -234,10 +228,11 @@ void HoldemHand52::classifyHand() {
 
 std::optional<Suit> HoldemHand52::getFlushSuit(
     std::vector<std::uint8_t> const &suitOccurences) const {
-  auto flushSuit = std::find_if(suitOccurences.begin(), suitOccurences.end(),
-                                [](auto occurence) { return occurence >= 5; });
-  if (flushSuit != suitOccurences.end())
-    return static_cast<Suit>(std::distance(flushSuit, suitOccurences.begin()));
+  for (size_t i = 0; i < suitOccurences.size(); ++i) {
+    if (suitOccurences[i] >= 5) {
+      return static_cast<Suit>(i);
+    }
+  }
   return std::nullopt;
 }
 
@@ -315,15 +310,6 @@ bool operator<(HoldemHand52 const &l, HoldemHand52 const &r) {
   if (l.handRank_ == HoldemHand52::Flush) {
     auto leftHighCards = l.getHighCards();
     auto rightHighCards = r.getHighCards();
-    std::cout << "Left high cards\n";
-    for(const auto& rank : leftHighCards){
-      std::cout << rank << " ";
-    }
-    std::cout << "\nright high cards\n";
-    for(const auto& rank : rightHighCards){
-      std::cout << rank << " ";
-    }
-    std::cout << '\n';
     return compareHighCards(leftHighCards, rightHighCards);
   }
   if (l.handRank_ == HoldemHand52::FullHouse) {
