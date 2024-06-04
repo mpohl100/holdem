@@ -81,64 +81,64 @@ TEST_CASE("HoldemHands", "[holdem_hand]") {
     SECTION("SixCardHands"){
         const auto straightFlush = HoldemHand52::fromString("Ah 2h 3h 4h 5h 6s");
         CHECK(straightFlush.getClassifiedPokerHand() == HoldemHand52::HandRank52::StraightFlush);
-        CHECK(straightFlush.getHighCards() == std::vector{Rank52::Five});
+        CHECK(straightFlush.getHighCards() == std::vector<Rank52>{Rank52::Five});
 
         const auto highStraightFlush = HoldemHand52::fromString("Th Jh Qh Kh Ah 9s");
         CHECK(highStraightFlush.getClassifiedPokerHand() == HoldemHand52::HandRank52::StraightFlush);
-        CHECK(highStraightFlush.getHighCards() == std::vector{Rank52::Ace});
+        CHECK(highStraightFlush.getHighCards() == std::vector<Rank52>{Rank52::Ace});
 
         const auto quadsHighCard = HoldemHand52::fromString("Ah 2h 2c 2s 2d As");
         CHECK(quadsHighCard.getClassifiedPokerHand() == HoldemHand52::HandRank52::Quads);
-        CHECK(quadsHighCard.getHighCards() == std::vector{Rank52::Ace});
+        CHECK(quadsHighCard.getHighCards() == std::vector<Rank52>{Rank52::Ace});
 
         const auto quadsHighCard2 = HoldemHand52::fromString("Qh 2h 2c 2s 2d Ks");
         CHECK(quadsHighCard2.getClassifiedPokerHand() == HoldemHand52::HandRank52::Quads);
-        CHECK(quadsHighCard2.getHighCards() == std::vector{Rank52::Ace});
+        CHECK(quadsHighCard2.getHighCards() == std::vector<Rank52>{Rank52::Ace});
 
         const auto fullHouse = HoldemHand52::fromString("5h 2d 2c 2s 5d 5c");
         CHECK(fullHouse.getClassifiedPokerHand() == HoldemHand52::HandRank52::FullHouse);
-        CHECK(fullHouse.getRanksMattering() == std::vector{Rank52::Five, Rank52::Two});
+        CHECK(fullHouse.getRanksMattering() == std::vector<Rank52>{Rank52::Five, Rank52::Deuce});
 
         const auto twoPair = HoldemHand52::fromString("5h 2d 2c 6s 5d 6c");
         CHECK(twoPair.getClassifiedPokerHand() == HoldemHand52::HandRank52::TwoPair);
-        CHECK(twoPair.getRanksMattering() == std::vector{Rank52::Six, Rank52::Five});
-        CHECK(twoPair.getHighCards() == std::vector{Rank52::Two});
+        CHECK(twoPair.getRanksMattering() == std::vector<Rank52>{Rank52::Six, Rank52::Five});
+        CHECK(twoPair.getHighCards() == std::vector<Rank52>{Rank52::Deuce});
 
         const auto twoPair2 = HoldemHand52::fromString("5h 2d Kc 6s 5d 6c");
         CHECK(twoPair2.getClassifiedPokerHand() == HoldemHand52::HandRank52::TwoPair);
-        CHECK(twoPair2.getRanksMattering() == std::vector{Rank52::Six, Rank52::Five});
-        CHECK(twoPair2.getHighCards() == std::vector{Rank52::King});
+        CHECK(twoPair2.getRanksMattering() == std::vector<Rank52>{Rank52::Six, Rank52::Five});
+        CHECK(twoPair2.getHighCards() == std::vector<Rank52>{Rank52::King});
     }
     SECTION("SevenCardHands"){
         const auto straightFlush = HoldemHand52::fromString("Ah 2h 3h 4h 5h 6s 7s");
         CHECK(straightFlush.getClassifiedPokerHand() == HoldemHand52::HandRank52::StraightFlush);
-        CHECK(straightFlush.getHighCards() == std::vector{Rank52::Five});
+        CHECK(straightFlush.getHighCards() == std::vector<Rank52>{Rank52::Five});
 
         const auto highStraightFlush = HoldemHand52::fromString("Th Jh Qh Kh Ah 9s 8s");
         CHECK(highStraightFlush.getClassifiedPokerHand() == HoldemHand52::HandRank52::StraightFlush);
-        CHECK(highStraightFlush.getHighCards() == std::vector{Rank52::Ace});
+        CHECK(highStraightFlush.getHighCards() == std::vector<Rank52>{Rank52::Ace});
 
         const auto quadsHighCard = HoldemHand52::fromString("Ah 2h 2c 2s 2d As Ac");
         CHECK(quadsHighCard.getClassifiedPokerHand() == HoldemHand52::HandRank52::Quads);
-        CHECK(quadsHighCard.getHighCards() == std::vector{Rank52::Ace});
+        CHECK(quadsHighCard.getHighCards() == std::vector<Rank52>{Rank52::Ace});
 
         const auto quadsHighCard2 = HoldemHand52::fromString("Qh 2h 2c 2s 2d Ks Jd");
         CHECK(quadsHighCard2.getClassifiedPokerHand() == HoldemHand52::HandRank52::Quads);
-        CHECK(quadsHighCard2.getHighCards() == std::vector{Rank52::Ace});
+        CHECK(quadsHighCard2.getHighCards() == std::vector<Rank52>{Rank52::Ace});
 
         const auto fullHouse = HoldemHand52::fromString("5h 2d 2c 2s 5d 4s 4d");
         CHECK(fullHouse.getClassifiedPokerHand() == HoldemHand52::HandRank52::FullHouse);
-        CHECK(fullHouse.getRanksMattering() == std::vector{Rank52::Five, Rank52::Two});
+        CHECK(fullHouse.getRanksMattering() == std::vector<Rank52>{Rank52::Five, Rank52::Deuce});
 
         const auto twoPair = HoldemHand52::fromString("5h 2d 2c 6s 5d 6c Ah");
         CHECK(twoPair.getClassifiedPokerHand() == HoldemHand52::HandRank52::TwoPair);
-        CHECK(twoPair.getRanksMattering() == std::vector{Rank52::Six, Rank52::Five});
-        CHECK(twoPair.getHighCards() == std::vector{Rank52::Two});
+        CHECK(twoPair.getRanksMattering() == std::vector<Rank52>{Rank52::Six, Rank52::Five});
+        CHECK(twoPair.getHighCards() == std::vector<Rank52>{Rank52::Deuce});
 
         const auto twoPair2 = HoldemHand52::fromString("5h 2d Kc 6s 5d 6c Qh");
         CHECK(twoPair2.getClassifiedPokerHand() == HoldemHand52::HandRank52::TwoPair);
-        CHECK(twoPair2.getRanksMattering() == std::vector{Rank52::Six, Rank52::Five});
-        CHECK(twoPair2.getHighCards() == std::vector{Rank52::King});
+        CHECK(twoPair2.getRanksMattering() == std::vector<Rank52>{Rank52::Six, Rank52::Five});
+        CHECK(twoPair2.getHighCards() == std::vector<Rank52>{Rank52::King});
     }
 }
 

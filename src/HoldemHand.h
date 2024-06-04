@@ -34,6 +34,7 @@ public:
     std::vector<Card52> getCards() const;
     HandRank52 getClassifiedPokerHand() const;
     std::array<Rank52,2> findOccurences(int nb) const;
+    std::vector<Rank52> getRanksMattering() const;
     std::vector<Rank52> getHighCards() const;
     int sum() const;
 
