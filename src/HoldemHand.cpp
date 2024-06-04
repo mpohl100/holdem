@@ -293,7 +293,7 @@ void HoldemHand52::classifyHand() {
     handRank_ = TwoPair;
     return;
   }
-  if (differentRanks == cards_.size() - 3 && !flushSuit && !straightRank) {
+  if (differentRanks <= cards_.size() - 3 && !flushSuit && !straightRank) {
     // it could be quads or full house or trips or three pair
     for (int i = static_cast<int>(rankOccurences_.size() - 1); i >= 0; --i) {
       if (rankOccurences_[i] == 4) {
