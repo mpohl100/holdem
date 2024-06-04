@@ -68,6 +68,10 @@ getFirstNHighCards(std::vector<std::uint8_t> const &rankOccurences, size_t N,
   return highCards;
 }
 
+std::vector<Rank52> HoldemHand52::getRanksMattering() const {
+  return {};
+}
+
 std::vector<Rank52> HoldemHand52::getHighCards() const {
   switch (handRank_) {
   case HighCard: {
