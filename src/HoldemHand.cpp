@@ -9,6 +9,25 @@ bool compareHighCards(std::vector<game52::Rank52> const &l,
                       std::vector<game52::Rank52> const &r) {
   return std::lexicographical_compare(l.begin(), l.end(), r.begin(), r.end());
 }
+
+std::vector<game52::Rank52>
+findOccurencesAtLeast(std::vector<std::uint8_t> const &filteredOccurences,
+                      std::uint8_t nb) {
+  std::vector<game52::Rank52> result;
+  for (int i = static_cast<int>(filteredOccurences.size() - 1); i >= 1; --i) {
+    if (filteredOccurences[i] >= nb) {
+      result.push_back(static_cast<game52::Rank52>(i - 1));
+    }
+  }
+  return result;
+}
+
+std::vector<std::uint8_t>
+resetRank(std::vector<std::uint8_t> const &rankOccurences, game52::Rank52 rank) {
+  auto result = rankOccurences;
+  result[static_cast<size_t>(rank) + 1] = 0;
+  return result;
+}
 } // namespace
 
 namespace game52 {
@@ -69,6 +88,32 @@ getFirstNHighCards(std::vector<std::uint8_t> const &rankOccurences, size_t N,
 }
 
 std::vector<Rank52> HoldemHand52::getRanksMattering() const {
+  switch (handRank_) {
+  case HighCard:
+    return getHighCards();
+  case Pair:
+    return {findOccurences(2)[0]};
+  case TwoPair: {
+    const auto firstRank = findOccurences(2)[0];
+    return {firstRank,
+            findOccurencesAtLeast(resetRank(rankOccurences_, firstRank), 2)[0]};
+  }
+  case Trips:
+    return {findOccurences(3)[0]};
+  case Straight:
+    return {getStraightRank(rankOccurences_).value()};
+  case Flush:
+    return getHighCards();
+  case FullHouse: {
+    const auto firstRank = findOccurences(3)[0];
+    return {firstRank,
+            findOccurencesAtLeast(resetRank(rankOccurences_, firstRank), 2)[0]};
+  }
+  case Quads:
+    return {findOccurences(4)[0]};
+  case StraightFlush:
+    return {getStraightRank(rankOccurences_).value()};
+  }
   return {};
 }
 
