@@ -180,7 +180,12 @@ std::vector<Rank52> HoldemHand52::getHighCards() const {
     return getFirstNHighCards(rankOccurences_, 3, cards_);
   }
   case TwoPair: {
-    return getFirstNHighCards(rankOccurences_, 1, cards_);
+    const auto matteringRanks = getRanksMattering();
+    auto occurences = rankOccurences_;
+    for(const auto matteringRank : matteringRanks){
+      occurences = resetRank(occurences, matteringRank);
+    }
+    return getFirstNHighCards(occurences, 1, cards_);
   }
   case Trips: {
     return getFirstNHighCards(rankOccurences_, 2, cards_);
@@ -212,7 +217,10 @@ std::vector<Rank52> HoldemHand52::getHighCards() const {
     return {};
   }
   case Quads: {
-    return getFirstNHighCards(rankOccurences_, 1, cards_);
+    const auto matteringRanks = getRanksMattering();
+    auto occurences = rankOccurences_;
+    occurences = resetRank(occurences, matteringRanks[0]);
+    return getFirstNHighCards(occurences, 1, cards_);
   }
   case StraightFlush: {
     const auto straightRanks = getStraightRanks(rankOccurences_);
