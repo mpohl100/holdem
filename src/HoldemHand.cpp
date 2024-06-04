@@ -307,7 +307,10 @@ void HoldemHand52::classifyHand() {
       if (rankOccurences_[i] == 4) {
         handRank_ = Quads;
         return;
-      } else if (rankOccurences_[i] == 3) {
+      } 
+    }
+    for (int i = static_cast<int>(rankOccurences_.size() - 1); i >= 0; --i) {
+      if (rankOccurences_[i] == 3) {
         handRank_ = FullHouse;
         return;
       }
