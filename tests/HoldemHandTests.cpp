@@ -125,7 +125,7 @@ TEST_CASE("HoldemHands", "[holdem_hand]") {
 
         const auto quadsHighCard2 = HoldemHand52::fromString("Qh 2h 2c 2s 2d Ks Jd");
         CHECK(quadsHighCard2.getClassifiedPokerHand() == HoldemHand52::HandRank52::Quads);
-        CHECK(quadsHighCard2.getHighCards() == std::vector<Rank52>{Rank52::Ace});
+        CHECK(quadsHighCard2.getHighCards() == std::vector<Rank52>{Rank52::King});
 
         const auto fullHouse = HoldemHand52::fromString("5h 2d 2c 2s 5d 4s 4d");
         CHECK(fullHouse.getClassifiedPokerHand() == HoldemHand52::HandRank52::FullHouse);
@@ -134,7 +134,7 @@ TEST_CASE("HoldemHands", "[holdem_hand]") {
         const auto twoPair = HoldemHand52::fromString("5h 2d 2c 6s 5d 6c Ah");
         CHECK(twoPair.getClassifiedPokerHand() == HoldemHand52::HandRank52::TwoPair);
         CHECK(twoPair.getRanksMattering() == std::vector<Rank52>{Rank52::Six, Rank52::Five});
-        CHECK(twoPair.getHighCards() == std::vector<Rank52>{Rank52::Deuce});
+        CHECK(twoPair.getHighCards() == std::vector<Rank52>{Rank52::Ace});
 
         const auto twoPair2 = HoldemHand52::fromString("5h 2d Kc 6s 5d 6c Qh");
         CHECK(twoPair2.getClassifiedPokerHand() == HoldemHand52::HandRank52::TwoPair);
