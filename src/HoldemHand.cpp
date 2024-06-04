@@ -29,6 +29,44 @@ resetRank(std::vector<std::uint8_t> const &rankOccurences,
   result[static_cast<size_t>(rank) + 1] = 0;
   return result;
 }
+
+game52::Rank52 getCurrentStraightRank(game52::Rank52 rank) {
+  if(rank == game52::Rank52::Ace) {
+    return game52::Rank52::Five;
+  }
+  return static_cast<game52::Rank52>(rank + 4);
+}
+
+game52::Rank52 getBottomStraightCard(game52::Rank52 rank){
+  if(rank == game52::Rank52::Five){
+    return game52::Rank52::Ace;
+  }
+  return static_cast<game52::Rank52>(static_cast<int>(rank) - 4);
+}
+
+std::vector<game52::Rank52>
+getStraightRanks(std::vector<std::uint8_t> const &rankOccurences) {
+  std::vector<game52::Rank52> result;
+  size_t neighboursCount = 0;
+  std::optional<game52::Rank52> currentStartRank = std::nullopt;
+  for (int i = static_cast<int>(rankOccurences.size() - 1); i >= 0; --i) {
+    if (neighboursCount >= 4) {
+      result.push_back(getCurrentStraightRank(static_cast<game52::Rank52>(i-1)));
+    }
+    if (rankOccurences[i] > 0) {
+      if (currentStartRank == std::nullopt) {
+        currentStartRank = static_cast<game52::Rank52>(i - 1);
+        neighboursCount = 1;
+      } else {
+        ++neighboursCount;
+      }
+    } else {
+      neighboursCount = 0;
+      currentStartRank = std::nullopt;
+    }
+  }
+  return result;
+}
 } // namespace
 
 namespace game52 {
@@ -177,8 +215,21 @@ std::vector<Rank52> HoldemHand52::getHighCards() const {
     return getFirstNHighCards(rankOccurences_, 1, cards_);
   }
   case StraightFlush: {
-    auto straightRank = getStraightRank(rankOccurences_);
-    return {*straightRank};
+    const auto straightRanks = getStraightRanks(rankOccurences_);
+    const auto flushSuit = getFlushSuit(suitOccurences_);
+    for(const auto& straightRank : straightRanks){
+      bool isFlush = true;
+      for(Rank52 rank = straightRank; rank >= getBottomStraightCard(straightRank); rank = static_cast<Rank52>(static_cast<int>(rank) - 1)){
+        const auto card = std::find(cards_.begin(), cards_.end(), Card52(rank, *flushSuit));
+        if(card == cards_.end()){
+          isFlush = false;
+          break;
+        }
+      }
+      if(isFlush){
+        return {straightRank};
+      }
+    }
   }
   }
   return {};
