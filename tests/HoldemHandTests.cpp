@@ -128,7 +128,7 @@ TEST_CASE("HoldemHands", "[holdem_hand]") {
 
         const auto fullHouse = HoldemHand52::fromString("5h 2d 2c 2s 5d 4s 4d");
         CHECK(fullHouse.getClassifiedPokerHand() == HoldemHand52::HandRank52::FullHouse);
-        CHECK(fullHouse.getRanksMattering() == std::vector<Rank52>{Rank52::Five, Rank52::Deuce});
+        CHECK(fullHouse.getRanksMattering() == std::vector<Rank52>{Rank52::Deuce, Rank52::Five});
 
         const auto twoPair = HoldemHand52::fromString("5h 2d 2c 6s 5d 6c Ah");
         CHECK(twoPair.getClassifiedPokerHand() == HoldemHand52::HandRank52::TwoPair);

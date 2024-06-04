@@ -23,7 +23,8 @@ findOccurencesAtLeast(std::vector<std::uint8_t> const &filteredOccurences,
 }
 
 std::vector<std::uint8_t>
-resetRank(std::vector<std::uint8_t> const &rankOccurences, game52::Rank52 rank) {
+resetRank(std::vector<std::uint8_t> const &rankOccurences,
+          game52::Rank52 rank) {
   auto result = rankOccurences;
   result[static_cast<size_t>(rank) + 1] = 0;
   return result;
@@ -77,11 +78,18 @@ getFirstNHighCards(std::vector<std::uint8_t> const &rankOccurences, size_t N,
   auto highCards = std::vector<Rank52>{};
   highCards.reserve(N);
   for (int i = static_cast<int>(rankOccurences.size() - 1); i >= 0; --i) {
-    if (rankOccurences[static_cast<size_t>(i)] == 1) {
-      highCards.push_back(static_cast<Rank52>(i - 1));
-    }
-    if (highCards.size() == N) {
-      break;
+    if (N == 1) {
+      if (rankOccurences[static_cast<size_t>(i)] >= 1) {
+        highCards.push_back(static_cast<Rank52>(i - 1));
+        break;
+      }
+    } else {
+      if (rankOccurences[static_cast<size_t>(i)] == 1) {
+        highCards.push_back(static_cast<Rank52>(i - 1));
+      }
+      if (highCards.size() == N) {
+        break;
+      }
     }
   }
   return highCards;
