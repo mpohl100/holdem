@@ -139,6 +139,7 @@ std::vector<Card52> HoldemHand52::getCards() const {
   case StraightFlush:
     return getCardsMattering();
   }
+  return {};
 }
 
 HoldemHand52::HandRank52 HoldemHand52::getClassifiedPokerHand() const {
@@ -457,18 +458,22 @@ void HoldemHand52::classifyHand() {
   if (straightRank && flushSuit) {
     auto rank = *straightRank;
     auto suit = *flushSuit;
-    for (size_t i = 0; i < 5; ++i) {
-      auto card = std::find(cards_.begin(), cards_.end(), Card52(rank, suit));
-      if (card == cards_.end()) {
-        handRank_ = Flush;
+    const auto straightRanks = getStraightRanks(rankOccurences_);
+    for(const auto straightRank : straightRanks){
+      bool isFlush = true;
+      for(const auto rank : getStraightRanks(straightRank)){
+        auto card = std::find(cards_.begin(), cards_.end(), Card52(rank, suit));
+        if(card == cards_.end()){
+          isFlush = false;
+          break;
+        }
       }
-      if (rank == Rank52::Deuce) {
-        rank = Rank52::Ace;
-      } else {
-        rank = static_cast<Rank52>(static_cast<std::uint8_t>(rank) - 1);
+      if(isFlush){
+        handRank_ = StraightFlush;
+        return;
       }
     }
-    handRank_ = StraightFlush;
+    handRank_ = Flush;
     return;
   }
 }
