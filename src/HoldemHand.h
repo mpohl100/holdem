@@ -38,6 +38,7 @@ public:
     std::vector<Card52> getCardsMattering() const;
     std::vector<Rank52> getHighCards() const;
     int sum() const;
+    HandRank52 getRank() const;
 
     static HoldemHand52 fromString(std::string const& str);
 
