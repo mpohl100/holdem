@@ -10,9 +10,12 @@ int main(int argc, char** argv){
     using namespace clara;
 
 
+    std::string board;
     int nbHands = 100;
     bool help = false;
-    auto cli = Opt(nbHands, "numberHands")["-n"]["--nb_hands"]("number of hands to play") | Help(help);
+    auto cli = Opt(nbHands, "numberHands")["-n"]["--nb_hands"]("number of hands to play") 
+    | Opt(board, "board")["-b"]["--board"]("board cards")
+    | Help(help);
      
 
     auto result = cli.parse(Args(argc, argv));
