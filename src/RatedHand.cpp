@@ -7,8 +7,8 @@
 
 namespace game52 {
 
-RatedHand::RatedHand(HoleCards const &holeCards, Board const &board)
-    : holeCards_(holeCards), board_(board) {}
+RatedHand::RatedHand(HoleCards const &holeCards, Board const &board, size_t nbPreflopBoards)
+    : holeCards_(holeCards), board_(board), nbPreflopBoards_(nbPreflopBoards) {}
 
 float RatedHand::getScore() const {
   float madeHandScore = getMadeHandScore();

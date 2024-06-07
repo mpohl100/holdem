@@ -11,7 +11,7 @@ int main(int argc, char** argv){
 
 
     std::string board;
-    int nbHands = 100;
+    int nbHands = 1000;
     bool help = false;
     auto cli = Opt(nbHands, "numberHands")["-n"]["--nb_hands"]("number of hands to play") 
     | Opt(board, "board")["-b"]["--board"]("board cards")
@@ -28,7 +28,7 @@ int main(int argc, char** argv){
         exit(0);
     }
 
-    game52::calculatePreflopStrengths();
+    game52::calculatePreflopStrengths(nbHands);
 
     //game52::Nlhe52 holdem(3);
     //for(int i = 0; i < nbHands; ++i)

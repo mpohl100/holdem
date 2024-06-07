@@ -79,13 +79,13 @@ void printPreflopStrengths()
         std::cout << getRepresentativeHolding(strength.first).toString() << ' ' << strength.second << '\n';
 }
 
-void calculatePreflopStrengths()
+void calculatePreflopStrengths(int nbHands)
 {
     std::multimap<double, HoleCards> results;
     auto holecards = HoleCards::getAll();
     for(HoleCards const& holding : holecards)
     {
-        RatedHand ratedHand(holding, Board{});
+        RatedHand ratedHand(holding, Board{}, static_cast<size_t>(nbHands));
         double score = ratedHand.getSimulatedScore();
         results.insert({score, holding});
     }
