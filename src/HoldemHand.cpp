@@ -31,17 +31,22 @@ resetRank(std::vector<std::uint8_t> const &rankOccurences,
 }
 
 game52::Rank52 getCurrentStraightRank(game52::Rank52 rank) {
-  if(rank == game52::Rank52::Ace) {
+  if (rank == game52::Rank52::Ace) {
     return game52::Rank52::Five;
   }
   return static_cast<game52::Rank52>(rank + 4);
 }
 
-game52::Rank52 getBottomStraightCard(game52::Rank52 rank){
-  if(rank == game52::Rank52::Five){
-    return game52::Rank52::Ace;
+std::vector<game52::Rank52> getStraightRanks(game52::Rank52 highestRank) {
+  if (highestRank == game52::Rank52::Five) {
+    return {game52::Rank52::Five, game52::Rank52::Four, game52::Rank52::Three,
+            game52::Rank52::Deuce, game52::Rank52::Ace};
   }
-  return static_cast<game52::Rank52>(static_cast<int>(rank) - 4);
+  return {highestRank,
+          static_cast<game52::Rank52>(static_cast<int>(highestRank) - 1),
+          static_cast<game52::Rank52>(static_cast<int>(highestRank) - 2),
+          static_cast<game52::Rank52>(static_cast<int>(highestRank) - 3),
+          static_cast<game52::Rank52>(static_cast<int>(highestRank) - 4)};
 }
 
 std::vector<game52::Rank52>
@@ -51,7 +56,8 @@ getStraightRanks(std::vector<std::uint8_t> const &rankOccurences) {
   std::optional<game52::Rank52> currentStartRank = std::nullopt;
   for (int i = static_cast<int>(rankOccurences.size() - 1); i >= 0; --i) {
     if (neighboursCount >= 4) {
-      result.push_back(getCurrentStraightRank(static_cast<game52::Rank52>(i-1)));
+      result.push_back(
+          getCurrentStraightRank(static_cast<game52::Rank52>(i - 1)));
     }
     if (rankOccurences[i] > 0) {
       if (currentStartRank == std::nullopt) {
@@ -89,7 +95,50 @@ HoldemHand52::HoldemHand52(std::vector<Card52>::iterator begin,
   classifyHand();
 }
 
-std::vector<Card52> HoldemHand52::getCards() const { return cards_; }
+std::vector<Card52> HoldemHand52::getCards() const {
+  const auto findCardsWithRanks = [this](std::vector<Rank52> const &ranks) {
+    auto result = std::vector<Card52>{};
+    result.reserve(ranks.size());
+    for (const auto &rank : ranks) {
+      for (const auto &card : cards_) {
+        if (card.rank() == rank) {
+          result.push_back(card);
+          break;
+        }
+      }
+    }
+    return result;
+  };
+
+  switch (handRank_) {
+  case HighCard: {
+    return findCardsWithRanks(getHighCards());
+  }
+  case Pair:
+  case TwoPair:
+  case Trips: {
+    auto matteringCards = getCardsMattering();
+    const auto highCards = findCardsWithRanks(getHighCards());
+    matteringCards.insert(matteringCards.end(), highCards.begin(),
+                          highCards.end());
+    return matteringCards;
+  }
+  case Straight:
+  case Flush: {
+    return getCardsMattering();
+  }
+  case FullHouse:
+  case Quads: {
+    auto matteringCards = getCardsMattering();
+    const auto highCards = findCardsWithRanks(getHighCards());
+    matteringCards.insert(matteringCards.end(), highCards.begin(),
+                          highCards.end());
+    return matteringCards;
+  }
+  case StraightFlush:
+    return getCardsMattering();
+  }
+}
 
 HoldemHand52::HandRank52 HoldemHand52::getClassifiedPokerHand() const {
   return handRank_;
@@ -163,6 +212,78 @@ std::vector<Rank52> HoldemHand52::getRanksMattering() const {
   return {};
 }
 
+std::vector<Card52> HoldemHand52::getCardsMattering() const {
+  const auto findCardsByRank = [this](std::vector<Rank52> const &ranks) {
+    auto result = std::vector<Card52>{};
+    result.reserve(4);
+    for (const auto &rank : ranks) {
+      for (const auto &card : cards_) {
+        if (card.rank() == rank) {
+          result.push_back(card);
+        }
+      }
+    }
+    return result;
+  };
+
+  switch (handRank_) {
+  case HighCard: {
+    return findCardsByRank(getHighCards());
+  }
+  case Pair: {
+    return findCardsByRank(getRanksMattering());
+  }
+  case TwoPair: {
+    return findCardsByRank(getRanksMattering());
+  }
+  case Trips: {
+    return findCardsByRank(getRanksMattering());
+  }
+  case Straight: {
+    const auto rank = getStraightRank(rankOccurences_).value();
+    std::vector<Card52> result;
+    result.reserve(5);
+    for (const auto r : getStraightRanks(rank)) {
+      for (const auto &card : cards_) {
+        if (card.rank() == r) {
+          result.push_back(card);
+          break;
+        }
+      }
+    }
+    return result;
+  }
+  case Flush: {
+    const auto flushSuit = getFlushSuit(suitOccurences_);
+    const auto highRanks = getHighCards();
+    auto result = std::vector<Card52>{};
+    result.reserve(5);
+    for (const auto &highRank : highRanks) {
+      result.push_back(Card52{highRank, *flushSuit});
+    }
+    return result;
+  }
+  case FullHouse: {
+    return findCardsByRank(getRanksMattering());
+  }
+  case Quads: {
+    return findCardsByRank(getRanksMattering());
+  }
+  case StraightFlush: {
+    const auto highCards = getHighCards();
+    const auto flushSuit = getFlushSuit(suitOccurences_);
+    const auto straightRanks = getStraightRanks(highCards.front());
+    auto result = std::vector<Card52>{};
+    result.reserve(5);
+    for (const auto &straightRank : straightRanks) {
+      result.push_back(Card52{straightRank, *flushSuit});
+    }
+    return result;
+  }
+  }
+  return {};
+}
+
 std::vector<Rank52> HoldemHand52::getHighCards() const {
   switch (handRank_) {
   case HighCard: {
@@ -182,7 +303,7 @@ std::vector<Rank52> HoldemHand52::getHighCards() const {
   case TwoPair: {
     const auto matteringRanks = getRanksMattering();
     auto occurences = rankOccurences_;
-    for(const auto matteringRank : matteringRanks){
+    for (const auto matteringRank : matteringRanks) {
       occurences = resetRank(occurences, matteringRank);
     }
     return getFirstNHighCards(occurences, 1, cards_);
@@ -225,16 +346,17 @@ std::vector<Rank52> HoldemHand52::getHighCards() const {
   case StraightFlush: {
     const auto straightRanks = getStraightRanks(rankOccurences_);
     const auto flushSuit = getFlushSuit(suitOccurences_);
-    for(const auto& straightRank : straightRanks){
+    for (const auto &straightRank : straightRanks) {
       bool isFlush = true;
-      for(Rank52 rank = straightRank; rank >= getBottomStraightCard(straightRank); rank = static_cast<Rank52>(static_cast<int>(rank) - 1)){
-        const auto card = std::find(cards_.begin(), cards_.end(), Card52(rank, *flushSuit));
-        if(card == cards_.end()){
+      for (const auto rank : getStraightRanks(straightRank)) {
+        const auto card =
+            std::find(cards_.begin(), cards_.end(), Card52(rank, *flushSuit));
+        if (card == cards_.end()) {
           isFlush = false;
           break;
         }
       }
-      if(isFlush){
+      if (isFlush) {
         return {straightRank};
       }
     }
@@ -307,7 +429,7 @@ void HoldemHand52::classifyHand() {
       if (rankOccurences_[i] == 4) {
         handRank_ = Quads;
         return;
-      } 
+      }
     }
     for (int i = static_cast<int>(rankOccurences_.size() - 1); i >= 0; --i) {
       if (rankOccurences_[i] == 3) {
