@@ -1,6 +1,7 @@
 #include "RatedHand.h"
 #include "Hand.h"
 #include "HowardsCombinatorics.h"
+#include "HoldemHand.h"
 
 #include <cmath>
 
@@ -58,7 +59,7 @@ double RatedHand::getSimulatedScore() const {
   auto boards = getBoards();
   double sum = 0;
   for (const auto &board : boards) {
-    MadeHand52 madeHand = getBestHand(Hand{holeCards_, board});
+    const auto madeHand = HoldemHand52{holeCards_, board};
     auto handRank = madeHand.getRank();
     double score = 0;
     switch (handRank) {

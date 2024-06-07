@@ -81,7 +81,8 @@ HoldemHand52::HoldemHand52(HoleCards const &holeCards, Board const &board)
     : cards_(holeCards.getCards()),
       rankOccurences_(static_cast<size_t>(Rank52::Ace) + 2, 0),
       suitOccurences_(4, 0) {
-  cards_.insert(cards_.end(), board.getCards().begin(), board.getCards().end());
+  const auto boardCards = board.getCards();
+  cards_.insert(cards_.end(), boardCards.begin(), boardCards.end());
   std::sort(cards_.begin(), cards_.end());
   classifyHand();
 }
@@ -372,6 +373,11 @@ int HoldemHand52::sum() const {
     sum += card;
   }
   return sum;
+}
+
+HoldemHand52::HandRank52 HoldemHand52::getRank() const
+{
+  return handRank_;
 }
 
 HoldemHand52 HoldemHand52::fromString(std::string const &str) {
