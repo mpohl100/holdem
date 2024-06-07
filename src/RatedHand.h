@@ -9,7 +9,7 @@ namespace game52{
 
 class RatedHand{
 public:
-    RatedHand(HoleCards const& holeCards, Board const& board);
+    RatedHand(HoleCards const& holeCards, Board const& board, size_t nbPreflopBoards);
     RatedHand() = default;
     RatedHand(RatedHand const&)  = default;
     RatedHand& operator=(RatedHand const&) = default;
